@@ -250,18 +250,32 @@ func (e *exprCode) Run() (Value, os.Error) {
 	return v, err
 }
 
+func (w *World) run_init() os.Error {
+	// run the 'init()' function of all dependent packages
+	for _, init_code := range w.inits {
+		_, err := init_code.Run()
+		if err != nil {
+			return err
+		}
+	}
+	// reset
+	w.inits = make([]Code, 0)
+	return nil
+}
+
 func (w *World) Compile(fset *token.FileSet, text string) (Code, os.Error) {
 	if text == "main()" {
-		// run the 'init()' function of all dependent packages
-		for _, init_code := range w.inits {
-			_, err := init_code.Run()
-			if err != nil {
-				return nil, err
-			}
+		err := w.run_init()
+		if err != nil {
+			return nil, err
 		}
-		// reset
-		w.inits = make([]Code, 0)
 	}
+	imp_hdr := "import "
+	if len(text) > len(imp_hdr) && text[:len(imp_hdr)] == imp_hdr {
+		// special case for import-ing on the command line...
+		return w.compileImport(fset, text)
+	}
+
 	stmts, err := parser.ParseStmtList(fset, "input", text)
 	if err == nil {
 		return w.CompileStmtList(fset, stmts)
@@ -277,6 +291,37 @@ func (w *World) Compile(fset *token.FileSet, text string) (Code, os.Error) {
 	// Parsing as statement list admits more forms,
 	// its error is more likely to be useful.
 	return nil, err
+}
+
+func (w *World) compileImport(fset *token.FileSet, text string) (Code, os.Error) {
+
+	codelet := "package main\n" + text
+	f, err := parser.ParseFile(fset, "input", codelet, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	imp := f.Imports[0]
+	path, _ := strconv.Unquote(imp.Path.Value)
+	imp_files, err := findPkgFiles(path)
+	if err != nil {
+		return nil, os.NewError(fmt.Sprintf("could not find files for package [%s]", path))
+	}
+	{
+		code, err := w.CompilePackage(fset, imp_files, path)
+		if err != nil {
+			return nil, err
+		}
+		_, err = code.Run()
+		if err != nil {
+			return nil, err
+		}
+		err = w.run_init()
+		if err != nil {
+			return nil, err
+		}
+	}
+	return w.CompileDeclList(fset, f.Decls)
 }
 
 type RedefinitionError struct {
