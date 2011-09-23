@@ -1357,8 +1357,7 @@ func findPkgFiles(path string) ([]*ast.File, os.Error) {
 		return nil, os.NewError("can't find import: " + id)
 	}
 
-	allowMain := false
-	dir, err := build.ScanDir(dirname, allowMain)
+	dir, err := build.ScanDir(dirname)
 	if err != nil {
 		return nil, err
 	}
@@ -1374,7 +1373,7 @@ func findPkgFiles(path string) ([]*ast.File, os.Error) {
 		return nil, err
 	}
 	files := []*ast.File{}
-	pkg := pkgs[dir.PkgName]
+	pkg := pkgs[dir.Package]
 	for _, v := range pkg.Files {
 		files = append(files, v)
 	}
@@ -1397,8 +1396,7 @@ func srcImporter(imports map[string]*ast.Object, path string) (pkg *ast.Object, 
 		return
 	}
 
-	allowMain := false
-	dir, err := build.ScanDir(dirname, allowMain)
+	dir, err := build.ScanDir(dirname)
 	if err != nil {
 		return
 	}
@@ -1415,10 +1413,10 @@ func srcImporter(imports map[string]*ast.Object, path string) (pkg *ast.Object, 
 	}
 
 	decls := make([]ast.Decl, 0)
-	for _, v := range pkgs[dir.PkgName].Files {
+	for _, v := range pkgs[dir.Package].Files {
 		decls = append(decls, v.Decls...)
 	}
-	pkg = ast.NewObj(ast.Pkg, pkgs[dir.PkgName].Name)
+	pkg = ast.NewObj(ast.Pkg, pkgs[dir.Package].Name)
 	pkg.Decl = decls
 
 	imports[path] = pkg
