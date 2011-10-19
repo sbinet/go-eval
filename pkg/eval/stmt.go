@@ -11,7 +11,7 @@ import (
 	"go/build"
 	"go/parser"
 	"go/token"
-	"go/types"
+	"exp/types"
 	"path/filepath"
 	"os"
 	"strconv"

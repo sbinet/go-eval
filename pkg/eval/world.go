@@ -13,7 +13,7 @@ import (
 	"go/parser"
 	"go/scanner"
 	"go/token"
-	"go/types"
+	"exp/types"
 	"strconv"
 	"os"
 )
