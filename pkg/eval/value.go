@@ -6,8 +6,8 @@ package eval
 
 import (
 	"big"
+	"errors"
 	"fmt"
-	"os"
 )
 
 type Value interface {
@@ -541,7 +541,7 @@ func (m evalMap) Elem(t *Thread, key interface{}) Value {
 
 func (m evalMap) SetElem(t *Thread, key interface{}, val Value) {
 	if val == nil {
-		m[key] = nil, false
+		delete(m, key)
 	} else {
 		m[key] = val
 	}
@@ -567,7 +567,7 @@ type packageV struct {
 func (p *packageV) String() string { return p.name }
 
 func (p *packageV) Assign(t *Thread, o Value) {
-	t.Abort(os.NewError("cant assign to a package"))
+	t.Abort(errors.New("cant assign to a package"))
 }
 
 func (p *packageV) Get(*Thread) PackageValue {

@@ -8,6 +8,7 @@
 package eval
 
 import (
+	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -15,7 +16,6 @@ import (
 	"go/token"
 	"exp/types"
 	"strconv"
-	"os"
 )
 
 // track the status of each package we visit (unvisited/visiting/done)
@@ -47,7 +47,7 @@ type Code interface {
 
 	// Run runs the code; if the code is a single expression
 	// with a value, it returns the value; otherwise it returns nil.
-	Run() (Value, os.Error)
+	Run() (Value, error)
 }
 
 type pkgCode struct {
@@ -57,13 +57,13 @@ type pkgCode struct {
 
 func (p *pkgCode) Type() Type { return nil }
 
-func (p *pkgCode) Run() (Value, os.Error) {
+func (p *pkgCode) Run() (Value, error) {
 	t := new(Thread)
 	t.f = p.w.scope.NewFrame(nil)
 	return nil, t.Try(func(t *Thread) { p.code.exec(t) })
 }
 
-func (w *World) CompilePackage(fset *token.FileSet, files []*ast.File, pkgpath string) (Code, os.Error) {
+func (w *World) CompilePackage(fset *token.FileSet, files []*ast.File, pkgpath string) (Code, error) {
 	pkgFiles := make(map[string]*ast.File)
 	for _, f := range files {
 		pkgFiles[f.Name.Name] = f
@@ -73,7 +73,7 @@ func (w *World) CompilePackage(fset *token.FileSet, files []*ast.File, pkgpath s
 		return nil, err
 	}
 	if pkg == nil {
-		return nil, os.NewError("could not create an AST package out of ast.Files")
+		return nil, errors.New("could not create an AST package out of ast.Files")
 	}
 
 	switch g_visiting[pkgpath] {
@@ -81,7 +81,7 @@ func (w *World) CompilePackage(fset *token.FileSet, files []*ast.File, pkgpath s
 		return &pkgCode{w, make(code, 0)}, nil
 	case visiting:
 		//fmt.Printf("** package dependency cycle **\n")
-		return nil, os.NewError("package dependency cycle")
+		return nil, errors.New("package dependency cycle")
 	}
 	g_visiting[pkgpath] = visiting
 	// create a new scope in which to process this new package
@@ -98,7 +98,7 @@ func (w *World) CompilePackage(fset *token.FileSet, files []*ast.File, pkgpath s
 		}
 		imp_files, err := findPkgFiles(path)
 		if err != nil {
-			return nil, os.NewError(fmt.Sprintf("could not find files for package [%s]", path))
+			return nil, errors.New(fmt.Sprintf("could not find files for package [%s]", path))
 		}
 		code, err := w.CompilePackage(fset, imp_files, path)
 		if err != nil {
@@ -156,7 +156,7 @@ type stmtCode struct {
 	code code
 }
 
-func (w *World) CompileStmtList(fset *token.FileSet, stmts []ast.Stmt) (Code, os.Error) {
+func (w *World) CompileStmtList(fset *token.FileSet, stmts []ast.Stmt) (Code, error) {
 	if len(stmts) == 1 {
 		if s, ok := stmts[0].(*ast.ExprStmt); ok {
 			return w.CompileExpr(fset, s.X)
@@ -188,7 +188,7 @@ func (w *World) CompileStmtList(fset *token.FileSet, stmts []ast.Stmt) (Code, os
 	return &stmtCode{w, fc.get()}, nil
 }
 
-func (w *World) CompileDeclList(fset *token.FileSet, decls []ast.Decl) (Code, os.Error) {
+func (w *World) CompileDeclList(fset *token.FileSet, decls []ast.Decl) (Code, error) {
 	stmts := make([]ast.Stmt, len(decls))
 	for i, d := range decls {
 		stmts[i] = &ast.DeclStmt{d}
@@ -198,7 +198,7 @@ func (w *World) CompileDeclList(fset *token.FileSet, decls []ast.Decl) (Code, os
 
 func (s *stmtCode) Type() Type { return nil }
 
-func (s *stmtCode) Run() (Value, os.Error) {
+func (s *stmtCode) Run() (Value, error) {
 	t := new(Thread)
 	t.f = s.w.scope.NewFrame(nil)
 	return nil, t.Try(func(t *Thread) { s.code.exec(t) })
@@ -210,7 +210,7 @@ type exprCode struct {
 	eval func(Value, *Thread)
 }
 
-func (w *World) CompileExpr(fset *token.FileSet, e ast.Expr) (Code, os.Error) {
+func (w *World) CompileExpr(fset *token.FileSet, e ast.Expr) (Code, error) {
 	errors := new(scanner.ErrorVector)
 	cc := &compiler{fset, errors, 0, 0}
 
@@ -235,7 +235,7 @@ func (w *World) CompileExpr(fset *token.FileSet, e ast.Expr) (Code, os.Error) {
 
 func (e *exprCode) Type() Type { return e.e.t }
 
-func (e *exprCode) Run() (Value, os.Error) {
+func (e *exprCode) Run() (Value, error) {
 	t := new(Thread)
 	t.f = e.w.scope.NewFrame(nil)
 	switch e.e.t.(type) {
@@ -250,7 +250,7 @@ func (e *exprCode) Run() (Value, os.Error) {
 	return v, err
 }
 
-func (w *World) run_init() os.Error {
+func (w *World) run_init() error {
 	// run the 'init()' function of all dependent packages
 	for _, init_code := range w.inits {
 		_, err := init_code.Run()
@@ -263,7 +263,7 @@ func (w *World) run_init() os.Error {
 	return nil
 }
 
-func (w *World) Compile(fset *token.FileSet, text string) (Code, os.Error) {
+func (w *World) Compile(fset *token.FileSet, text string) (Code, error) {
 	if text == "main()" {
 		err := w.run_init()
 		if err != nil {
@@ -293,7 +293,7 @@ func (w *World) Compile(fset *token.FileSet, text string) (Code, os.Error) {
 	return nil, err
 }
 
-func (w *World) compileImport(fset *token.FileSet, text string) (Code, os.Error) {
+func (w *World) compileImport(fset *token.FileSet, text string) (Code, error) {
 
 	codelet := "package main\n" + text
 	f, err := parser.ParseFile(fset, "input", codelet, 0)
@@ -305,7 +305,7 @@ func (w *World) compileImport(fset *token.FileSet, text string) (Code, os.Error)
 	path, _ := strconv.Unquote(imp.Path.Value)
 	imp_files, err := findPkgFiles(path)
 	if err != nil {
-		return nil, os.NewError(fmt.Sprintf("could not find files for package [%s]", path))
+		return nil, errors.New(fmt.Sprintf("could not find files for package [%s]", path))
 	}
 	{
 		code, err := w.CompilePackage(fset, imp_files, path)
@@ -329,7 +329,7 @@ type RedefinitionError struct {
 	Prev Def
 }
 
-func (e *RedefinitionError) String() string {
+func (e *RedefinitionError) Error() string {
 	res := "identifier " + e.Name + " redeclared"
 	pos := e.Prev.Pos()
 	if pos.IsValid() {
@@ -341,7 +341,7 @@ func (e *RedefinitionError) String() string {
 	return res
 }
 
-func (w *World) DefineConst(name string, t Type, val Value) os.Error {
+func (w *World) DefineConst(name string, t Type, val Value) error {
 	_, prev := w.scope.DefineConst(name, token.NoPos, t, val)
 	if prev != nil {
 		return &RedefinitionError{name, prev}
@@ -349,7 +349,7 @@ func (w *World) DefineConst(name string, t Type, val Value) os.Error {
 	return nil
 }
 
-func (w *World) DefineVar(name string, t Type, val Value) os.Error {
+func (w *World) DefineVar(name string, t Type, val Value) error {
 	v, prev := w.scope.DefineVar(name, token.NoPos, t)
 	if prev != nil {
 		return &RedefinitionError{name, prev}

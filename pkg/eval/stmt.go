@@ -6,6 +6,7 @@ package eval
 
 import (
 	"big"
+	"errors"
 	"log"
 	"go/ast"
 	"go/build"
@@ -13,7 +14,6 @@ import (
 	"go/token"
 	"exp/types"
 	"path/filepath"
-	"os"
 	"strconv"
 )
 
@@ -1350,11 +1350,11 @@ func findPkg(path string) (filename, id string) {
 	return
 }
 
-func findPkgFiles(path string) ([]*ast.File, os.Error) {
+func findPkgFiles(path string) ([]*ast.File, error) {
 
 	dirname, id := findPkg(path)
 	if dirname == "" {
-		return nil, os.NewError("can't find import: " + id)
+		return nil, errors.New("can't find import: " + id)
 	}
 
 	dir, err := build.ScanDir(dirname)
@@ -1381,7 +1381,7 @@ func findPkgFiles(path string) ([]*ast.File, os.Error) {
 }
 
 // srcImporter implements the ast.Importer signature.
-func srcImporter(imports map[string]*ast.Object, path string) (pkg *ast.Object, err os.Error) {
+func srcImporter(imports map[string]*ast.Object, path string) (pkg *ast.Object, err error) {
 	if path == "unsafe" {
 		return types.Unsafe, nil
 	}
@@ -1392,7 +1392,7 @@ func srcImporter(imports map[string]*ast.Object, path string) (pkg *ast.Object, 
 
 	dirname, id := findPkg(path)
 	if dirname == "" {
-		err = os.NewError("can't find import: " + id)
+		err = errors.New("can't find import: " + id)
 		return
 	}
 

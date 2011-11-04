@@ -6,13 +6,13 @@ package eval
 
 import (
 	"big"
+	"errors"
 	"fmt"
 	"go/ast"
 	"go/token"
 	"log"
 	"strconv"
 	"strings"
-	"os"
 )
 
 var (
@@ -1963,7 +1963,7 @@ func (a *exprInfo) compileBuiltinCallExpr(b *block, ft *FuncType, as []*expr) *e
 		if ft == panicType {
 			expr.exec = func(t *Thread) {
 				printer(t)
-				t.Abort(os.NewError("panic"))
+				t.Abort(errors.New("panic"))
 			}
 		}
 		return expr

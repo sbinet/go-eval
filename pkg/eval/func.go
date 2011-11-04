@@ -4,14 +4,12 @@
 
 package eval
 
-import "os"
-
 /*
  * Virtual machine
  */
 
 type Thread struct {
-	abort chan os.Error
+	abort chan error
 	pc    uint
 	// The execution frame of this function.  This remains the
 	// same throughout a function invocation.
