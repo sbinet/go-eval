@@ -4,8 +4,8 @@
 package eval
 
 import (
-	"big"
 	"log"
+	"math/big"
 )
 
 /*
@@ -1507,7 +1507,7 @@ func (a *expr) genBinOpShr(l, r *expr) {
 }
 
 func (a *expr) genBinOpLss(l, r *expr) {
-	switch t := l.t.lit().(type) {
+	switch l.t.lit().(type) {
 	case *uintType:
 		lf := l.asUint()
 		rf := r.asUint()
@@ -1552,7 +1552,7 @@ func (a *expr) genBinOpLss(l, r *expr) {
 }
 
 func (a *expr) genBinOpGtr(l, r *expr) {
-	switch t := l.t.lit().(type) {
+	switch l.t.lit().(type) {
 	case *uintType:
 		lf := l.asUint()
 		rf := r.asUint()
@@ -1597,7 +1597,7 @@ func (a *expr) genBinOpGtr(l, r *expr) {
 }
 
 func (a *expr) genBinOpLeq(l, r *expr) {
-	switch t := l.t.lit().(type) {
+	switch l.t.lit().(type) {
 	case *uintType:
 		lf := l.asUint()
 		rf := r.asUint()
@@ -1642,7 +1642,7 @@ func (a *expr) genBinOpLeq(l, r *expr) {
 }
 
 func (a *expr) genBinOpGeq(l, r *expr) {
-	switch t := l.t.lit().(type) {
+	switch l.t.lit().(type) {
 	case *uintType:
 		lf := l.asUint()
 		rf := r.asUint()
@@ -1687,7 +1687,7 @@ func (a *expr) genBinOpGeq(l, r *expr) {
 }
 
 func (a *expr) genBinOpEql(l, r *expr) {
-	switch t := l.t.lit().(type) {
+	switch l.t.lit().(type) {
 	case *boolType:
 		lf := l.asBool()
 		rf := r.asBool()
@@ -1760,7 +1760,7 @@ func (a *expr) genBinOpEql(l, r *expr) {
 }
 
 func (a *expr) genBinOpNeq(l, r *expr) {
-	switch t := l.t.lit().(type) {
+	switch l.t.lit().(type) {
 	case *boolType:
 		lf := l.asBool()
 		rf := r.asBool()

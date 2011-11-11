@@ -5,9 +5,9 @@
 package eval
 
 import (
-	"big"
 	"errors"
 	"fmt"
+	"math/big"
 )
 
 type Value interface {

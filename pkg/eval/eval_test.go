@@ -5,12 +5,11 @@
 package eval
 
 import (
-	"big"
 	"flag"
 	"fmt"
 	"go/token"
 	"log"
-	"os"
+	"math/big"
 	"reflect"
 	"regexp"
 	"testing"
@@ -97,8 +96,8 @@ func (a test) run(t *testing.T, name string) {
 	}
 }
 
-func match(t *testing.T, err os.Error, pat string) bool {
-	ok, err1 := regexp.MatchString(pat, err.String())
+func match(t *testing.T, err error, pat string) bool {
+	ok, err1 := regexp.MatchString(pat, err.Error())
 	if err1 != nil {
 		t.Fatalf("compile regexp %s: %v", pat, err1)
 	}

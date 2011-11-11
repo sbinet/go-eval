@@ -290,7 +290,7 @@ func (a *expr) genBinOpLogOr(l, r *expr) {
 
 «.repeated section BinaryOps»
 func (a *expr) genBinOp«Name»(l, r *expr) {
-	switch t := l.t.lit().(type) {
+	switch l.t.lit().(type) {
 «.repeated section Types»
 	case «Repr»:
 	«.section IsIdeal»

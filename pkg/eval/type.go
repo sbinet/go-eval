@@ -5,15 +5,14 @@
 package eval
 
 import (
-	"big"
 	"go/ast"
 	"go/token"
 	"log"
+	"math/big"
 	"reflect"
 	"sort"
 	"unsafe" // For Sizeof
 )
-
 
 // XXX(Spec) The type compatibility section is very confusing because
 // it makes it seem like there are three distinct types of

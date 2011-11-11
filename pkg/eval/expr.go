@@ -5,12 +5,12 @@
 package eval
 
 import (
-	"big"
 	"errors"
 	"fmt"
 	"go/ast"
 	"go/token"
 	"log"
+	"math/big"
 	"strconv"
 	"strings"
 )
@@ -668,12 +668,12 @@ func (a *exprCompiler) compile(x ast.Expr, callCtx bool) *expr {
 		keys := make([]interface{}, 0, len(x.Elts))
 		vals := make([]*expr, len(x.Elts))
 		for i := range x.Elts {
-			switch ix := x.Elts[i].(type) {
+			switch x.Elts[i].(type) {
 			case *ast.KeyValueExpr:
 				kv := x.Elts[i].(*ast.KeyValueExpr)
 				switch kk := kv.Key.(type) {
 				case *ast.Ident:
-					switch xt := x.Type.(type) {
+					switch x.Type.(type) {
 					case *ast.Ident:
 						keys = append(keys, kk.Name)
 					default:
@@ -709,7 +709,7 @@ func (a *exprCompiler) compile(x ast.Expr, callCtx bool) *expr {
 
 	// Types
 	case *ast.ArrayType:
-		switch xl := x.Len.(type) {
+		switch x.Len.(type) {
 		case *ast.Ellipsis:
 			a.diagAt(x.Pos(), "array literal with ellipsis is not implemented")
 			return nil
