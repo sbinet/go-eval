@@ -104,7 +104,6 @@ func match(t *testing.T, err error, pat string) bool {
 	return ok
 }
 
-
 /*
  * Test constructors
  */

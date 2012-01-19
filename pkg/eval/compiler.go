@@ -10,7 +10,6 @@ import (
 	"go/token"
 )
 
-
 // A compiler captures information used throughout an entire
 // compilation.  Currently it includes only the error handler.
 //
@@ -43,7 +42,6 @@ func newUniverse() *universeScope {
 }
 
 var universe *universeScope = newUniverse()
-
 
 // TODO(austin) These can all go in stmt.go now
 type label struct {

@@ -5,8 +5,8 @@
 package eval
 
 import (
-	"log"
 	"go/token"
+	"log"
 	"reflect"
 )
 

@@ -9,13 +9,14 @@ package eval
 
 import (
 	"errors"
+	"exp/types"
 	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/scanner"
 	"go/token"
-	"exp/types"
 	"strconv"
+	"strings"
 )
 
 // track the status of each package we visit (unvisited/visiting/done)
@@ -270,19 +271,18 @@ func (w *World) Compile(fset *token.FileSet, text string) (Code, error) {
 			return nil, err
 		}
 	}
-	imp_hdr := "import "
-	if len(text) > len(imp_hdr) && text[:len(imp_hdr)] == imp_hdr {
+	if strings.HasPrefix(text, "import") {
 		// special case for import-ing on the command line...
 		return w.compileImport(fset, text)
 	}
 
-	stmts, err := parser.ParseStmtList(fset, "input", text)
+	stmts, err := parseStmtList(fset, text)
 	if err == nil {
 		return w.CompileStmtList(fset, stmts)
 	}
 
-	// Otherwise try as DeclList.
-	decls, err1 := parser.ParseDeclList(fset, "input", text)
+	// Otherwise try as DeclList
+	decls, err1 := parseDeclList(fset, text)
 	if err1 == nil {
 		return w.CompileDeclList(fset, decls)
 	}
@@ -294,9 +294,7 @@ func (w *World) Compile(fset *token.FileSet, text string) (Code, error) {
 }
 
 func (w *World) compileImport(fset *token.FileSet, text string) (Code, error) {
-
-	codelet := "package main\n" + text
-	f, err := parser.ParseFile(fset, "input", codelet, 0)
+	f, err := parser.ParseFile(fset, "input", "package main;"+text, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -322,6 +320,22 @@ func (w *World) compileImport(fset *token.FileSet, text string) (Code, error) {
 		}
 	}
 	return w.CompileDeclList(fset, f.Decls)
+}
+
+func parseStmtList(fset *token.FileSet, src string) ([]ast.Stmt, error) {
+	f, err := parser.ParseFile(fset, "input", "package p;func _(){"+src+"\n}", 0)
+	if err != nil {
+		return nil, err
+	}
+	return f.Decls[0].(*ast.FuncDecl).Body.List, nil
+}
+
+func parseDeclList(fset *token.FileSet, src string) ([]ast.Decl, error) {
+	f, err := parser.ParseFile(fset, "input", "package p;"+src, 0)
+	if err != nil {
+		return nil, err
+	}
+	return f.Decls, nil
 }
 
 type RedefinitionError struct {
