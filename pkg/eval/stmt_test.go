@@ -104,9 +104,9 @@ var stmtTests = []test{
 	Run("type T int; type U struct { T }"),
 	CErr("type T *int; type U struct { T }", "embedded.*pointer"),
 	CErr("type T *struct { T }", "embedded.*pointer"),
-	CErr("type T struct { a int; a int }", " a .*redeclared.*:1:17"),
-	CErr("type T struct { int; int }", "int .*redeclared.*:1:17"),
-	CErr("type T struct { int int; int }", "int .*redeclared.*:1:17"),
+	CErr("type T struct { a int; a int }", " a .*redeclared"),
+	CErr("type T struct { int; int }", "int .*redeclared"),
+	CErr("type T struct { int int; int }", "int .*redeclared"),
 	Run("type T struct { x *struct { T } }"),
 	CErr("type T struct { x struct { T } }", "recursive"),
 	CErr("type T struct { x }; type U struct { T }", "undefined"),
@@ -138,7 +138,7 @@ var stmtTests = []test{
 	CErr("var x foo = 1; x = 1", "undefined"),
 	// Redeclaration
 	CErr("var i, x int", " i .*redeclared"),
-	CErr("var x int; var x int", " x .*redeclared.*:1:5"),
+	CErr("var x int; var x int", " x .*redeclared"),
 
 	// Expression statements
 	CErr("x := func(){ 1-1 }", "expression statement"),
@@ -195,7 +195,7 @@ var stmtTests = []test{
 	CErr("continue foo", "continue.*foo.*not defined"),
 	CErr("fallthrough", "outside"),
 	CErr("goto foo", "foo.*not defined"),
-	CErr(" foo: foo:;", "foo.*redeclared.*:1:2"),
+	CErr(" foo: foo:;", "foo.*redeclared"),
 	Val1("i+=2; goto L; i+=4; L: i+=8", "i", 1+2+8),
 	// Return checking
 	CErr("fn1 := func() int { goto L; return 1; L: }", "return"),
@@ -302,7 +302,7 @@ var stmtTests = []test{
 	Val2("type T struct { x int }; var y struct { T; x int }; y.x = 42; i = y.x; i2 = y.T.x", "i", 42, "i2", 0),
 	Run("type T struct { x int }; var y struct { *T }; a := func(){i=y.x}"),
 	CErr("type T struct { x int }; var x T; x.y = 42", "no field"),
-	CErr("type T struct { x int }; type U struct { x int }; var y struct { T; U }; y.x = 42", "ambiguous.*\tT\\.x\n\tU\\.x"),
+	CErr("type T struct { x int }; type U struct { x int }; var y struct { T; U }; y.x = 42", "ambiguous.*[\n].*T\\.x.*[\n].*U\\.x"),
 	CErr("type T struct { *T }; var x T; x.foo", "no field"),
 
 	Val1("fib := func(int) int{return 0;}; fib = func(v int) int { if v < 2 { return 1 }; return fib(v-1)+fib(v-2) }; i = fib(20)", "i", 10946),
@@ -338,6 +338,9 @@ var stmtTests = []test{
 	Val2("func fib(n int) int { if n <= 2 { return n }; return fib(n-1) + fib(n-2) }", "fib(4)", 5, "fib(10)", 89),
 	Run("func f1(){}"),
 	Run2("func f1(){}", "f1()"),
+
+	// Imports
+	CErr(`import "__a"`, "could not find files.*__a"),
 }
 
 func TestStmt(t *testing.T) { runTests(t, "stmtTests", stmtTests) }

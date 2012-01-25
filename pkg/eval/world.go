@@ -15,8 +15,8 @@ import (
 	"go/parser"
 	"go/scanner"
 	"go/token"
+	"regexp"
 	"strconv"
-	"strings"
 )
 
 // track the status of each package we visit (unvisited/visiting/done)
@@ -264,6 +264,9 @@ func (w *World) run_init() error {
 	return nil
 }
 
+// Regexp to match the import keyword
+var import_regexp = regexp.MustCompile("[ \t\n]*import[ \t(]")
+
 func (w *World) Compile(fset *token.FileSet, text string) (Code, error) {
 	if text == "main()" {
 		err := w.run_init()
@@ -271,7 +274,7 @@ func (w *World) Compile(fset *token.FileSet, text string) (Code, error) {
 			return nil, err
 		}
 	}
-	if strings.HasPrefix(text, "import") {
+	if i := import_regexp.FindStringIndex(text); i != nil && i[0] == 0 {
 		// special case for import-ing on the command line...
 		return w.compileImport(fset, text)
 	}
