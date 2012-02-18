@@ -17,13 +17,13 @@ import (
 // case it should be package compiler.
 type compiler struct {
 	fset         *token.FileSet
-	errors       scanner.ErrorHandler
+	errors       *scanner.ErrorList
 	numErrors    int
 	silentErrors int
 }
 
 func (a *compiler) diagAt(pos token.Pos, format string, args ...interface{}) {
-	a.errors.Error(a.fset.Position(pos), fmt.Sprintf(format, args...))
+	a.errors.Add(a.fset.Position(pos), fmt.Sprintf(format, args...))
 	a.numErrors++
 }
 

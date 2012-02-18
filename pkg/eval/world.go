@@ -163,7 +163,7 @@ func (w *World) CompileStmtList(fset *token.FileSet, stmts []ast.Stmt) (Code, er
 			return w.CompileExpr(fset, s.X)
 		}
 	}
-	errors := new(scanner.ErrorVector)
+	errors := new(scanner.ErrorList)
 	cc := &compiler{fset, errors, 0, 0}
 	cb := newCodeBuf()
 	fc := &funcCompiler{
@@ -184,7 +184,8 @@ func (w *World) CompileStmtList(fset *token.FileSet, stmts []ast.Stmt) (Code, er
 	}
 	fc.checkLabels()
 	if nerr != cc.numError() {
-		return nil, errors.GetError(scanner.Sorted)
+		errors.Sort()
+		return nil, errors.Err()
 	}
 	return &stmtCode{w, fc.get()}, nil
 }
@@ -212,12 +213,13 @@ type exprCode struct {
 }
 
 func (w *World) CompileExpr(fset *token.FileSet, e ast.Expr) (Code, error) {
-	errors := new(scanner.ErrorVector)
+	errors := new(scanner.ErrorList)
 	cc := &compiler{fset, errors, 0, 0}
 
 	ec := cc.compileExpr(w.scope.block, false, e)
 	if ec == nil {
-		return nil, errors.GetError(scanner.Sorted)
+		errors.Sort()
+		return nil, errors.Err()
 	}
 	var eval func(Value, *Thread)
 	switch t := ec.t.(type) {

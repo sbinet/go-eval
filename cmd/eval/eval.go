@@ -5,8 +5,8 @@
 package main
 
 import (
+	"bitbucket.org/binet/go-eval/pkg/eval"
 	"bufio"
-	"exp/eval"
 	"flag"
 	"fmt"
 	"go/ast"
@@ -26,12 +26,12 @@ func main() {
 	if *filename != "" {
 		data, err := ioutil.ReadFile(*filename)
 		if err != nil {
-			fmt.Println(err.String())
+			fmt.Println(err.Error())
 			os.Exit(1)
 		}
 		file, err := parser.ParseFile(fset, *filename, data, 0)
 		if err != nil {
-			fmt.Println(err.String())
+			fmt.Println(err.Error())
 			os.Exit(1)
 		}
 		files := []*ast.File{file}
@@ -39,21 +39,21 @@ func main() {
 		if err != nil {
 			if list, ok := err.(scanner.ErrorList); ok {
 				for _, e := range list {
-					fmt.Println(e.String())
+					fmt.Println(e.Error())
 				}
 			} else {
-				fmt.Println(err.String())
+				fmt.Println(err.Error())
 			}
 			os.Exit(1)
 		}
 		code, err = w.Compile(fset, "main()")
 		if err != nil {
-			fmt.Println(err.String())
+			fmt.Println(err.Error())
 			os.Exit(1)
 		}
 		_, err = code.Run()
 		if err != nil {
-			fmt.Println(err.String())
+			fmt.Println(err.Error())
 			os.Exit(1)
 		}
 		os.Exit(0)
@@ -68,12 +68,12 @@ func main() {
 		}
 		code, err := w.Compile(fset, line)
 		if err != nil {
-			println(err.String())
+			println(err.Error())
 			continue
 		}
 		v, err := code.Run()
 		if err != nil {
-			println(err.String())
+			println(err.Error())
 			continue
 		}
 		if v != nil {

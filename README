@@ -3,3 +3,6 @@ go-eval
 
 This is the new home for the exp/eval package: the beginning of an interpreter for Go.
 
+Installation:
+  go install bitbucket.org/binet/go-eval/pkg/eval
+  go install bitbucket.org/binet/go-eval/cmd/eval
