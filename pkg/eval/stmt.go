@@ -5,7 +5,6 @@
 package eval
 
 import (
-	"errors"
 	"exp/types"
 	"go/ast"
 	"go/build"
@@ -1341,23 +1340,8 @@ func (a *funcCompiler) checkLabels() {
 	a.flow.gotosObeyScopes(a.compiler)
 }
 
-func findPkg(path string) (filename, id string) {
-	tree, _, err := build.FindTree(path)
-	if err == nil && tree != nil && tree.HasSrc(path) {
-		filename = filepath.Join(tree.SrcDir(), path)
-		id = path
-	}
-	return
-}
-
 func findPkgFiles(path string) ([]*ast.File, error) {
-
-	dirname, id := findPkg(path)
-	if dirname == "" {
-		return nil, errors.New("can't find import: " + id)
-	}
-
-	dir, err := build.ScanDir(dirname)
+	pkg, err := build.Import(path, "", 0)
 	if err != nil {
 		return nil, err
 	}
@@ -1365,8 +1349,8 @@ func findPkgFiles(path string) ([]*ast.File, error) {
 
 	fset := token.NewFileSet()
 	var files []*ast.File
-	for i := range dir.GoFiles {
-		pkgfile := filepath.Join(dirname, dir.GoFiles[i])
+	for i := range pkg.GoFiles {
+		pkgfile := filepath.Join(pkg.Dir, pkg.GoFiles[i])
 		f, err := parser.ParseFile(fset, pkgfile, nil, 0)
 		if err != nil {
 			return nil, err
@@ -1387,13 +1371,7 @@ func srcImporter(imports map[string]*ast.Object, path string) (pkg *ast.Object, 
 		return nil, nil // package was imported before
 	}
 
-	dirname, id := findPkg(path)
-	if dirname == "" {
-		err := errors.New("can't find import: " + id)
-		return nil, err
-	}
-
-	dir, err := build.ScanDir(dirname)
+	buildPkg, err := build.Import(path, "", 0)
 	if err != nil {
 		return nil, err
 	}
@@ -1401,8 +1379,8 @@ func srcImporter(imports map[string]*ast.Object, path string) (pkg *ast.Object, 
 
 	fset := token.NewFileSet()
 	var files []*ast.File
-	for i := range dir.GoFiles {
-		pkgfile := filepath.Join(dirname, dir.GoFiles[i])
+	for i := range buildPkg.GoFiles {
+		pkgfile := filepath.Join(buildPkg.Dir, buildPkg.GoFiles[i])
 		f, err := parser.ParseFile(fset, pkgfile, nil, 0)
 		if err != nil {
 			return nil, err
@@ -1414,7 +1392,7 @@ func srcImporter(imports map[string]*ast.Object, path string) (pkg *ast.Object, 
 	for _, f := range files {
 		decls = append(decls, f.Decls...)
 	}
-	pkg = ast.NewObj(ast.Pkg, dir.Package)
+	pkg = ast.NewObj(ast.Pkg, buildPkg.Name)
 	pkg.Decl = decls
 
 	imports[path] = pkg
