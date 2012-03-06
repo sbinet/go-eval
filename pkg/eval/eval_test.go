@@ -91,7 +91,7 @@ func (a test) run(t *testing.T, name string) {
 		}
 
 		if !j.noval && !reflect.DeepEqual(val, j.val) {
-			t.Errorf("%s: Run %s = %T(%v) want %T(%v)", name, src, val, val, j.val, j.val)
+			t.Errorf("%s: Run %s = %T(%v) want %T(%v) [deep-equal=%v]", name, src, val, val, j.val, j.val, reflect.DeepEqual(val, j.val))
 		}
 	}
 }
