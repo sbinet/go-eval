@@ -8,8 +8,8 @@
 package eval
 
 import (
+	"bitbucket.org/binet/go-types/pkg/types"
 	"errors"
-	"exp/types"
 	"fmt"
 	"go/ast"
 	"go/parser"

@@ -5,7 +5,7 @@
 package eval
 
 import (
-	"exp/types"
+	"bitbucket.org/binet/go-types/pkg/types"
 	"go/ast"
 	"go/build"
 	"go/parser"
