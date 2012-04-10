@@ -7,7 +7,7 @@ package main
 import (
 	"bitbucket.org/binet/go-eval/pkg/eval"
 	//"bufio"
-	"code.google.com/p/go.crypto/ssh/terminal"
+	"bitbucket.org/binet/go-terminal/pkg/terminal"
 	"errors"
 	"flag"
 	"fmt"
