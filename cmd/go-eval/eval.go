@@ -6,7 +6,6 @@ package main
 
 import (
 	"bitbucket.org/binet/go-eval/pkg/eval"
-	//"bufio"
 	"bitbucket.org/binet/go-terminal/pkg/terminal"
 	"errors"
 	"flag"
