@@ -16,6 +16,6 @@ Usage::
   world
   >
 
-Documentation::
+Documentation:
 
   http://gopkgdoc.appspot.com/pkg/github.com/sbinet/go-eval/pkg/eval
