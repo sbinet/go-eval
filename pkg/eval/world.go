@@ -8,7 +8,7 @@
 package eval
 
 import (
-	"bitbucket.org/binet/go-types/pkg/types"
+	"github.com/sbinet/go-types/pkg/types"
 	"errors"
 	"fmt"
 	"go/ast"

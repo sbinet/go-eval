@@ -5,8 +5,8 @@
 package main
 
 import (
-	"bitbucket.org/binet/go-eval/pkg/eval"
-	"bitbucket.org/binet/go-terminal/pkg/terminal"
+	"github.com/sbinet/go-eval/pkg/eval"
+	"github.com/sbinet/go-terminal/pkg/terminal"
 	"errors"
 	"flag"
 	"fmt"
