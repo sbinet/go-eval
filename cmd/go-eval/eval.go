@@ -5,8 +5,6 @@
 package main
 
 import (
-	"github.com/sbinet/go-eval/pkg/eval"
-	"github.com/sbinet/go-terminal/pkg/terminal"
 	"errors"
 	"flag"
 	"fmt"
@@ -17,6 +15,9 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+
+	"github.com/sbinet/go-terminal/pkg/terminal"
+	"github.com/sbinet/go-eval/pkg/eval"
 )
 
 var fset = token.NewFileSet()
@@ -26,6 +27,7 @@ type shell struct {
 	r io.Reader
 	w io.Writer
 }
+
 func (sh *shell) Read(data []byte) (n int, err error) {
 	return sh.r.Read(data)
 }
@@ -75,11 +77,11 @@ func main() {
 	fmt.Println(":: welcome to go-eval...")
 
 	fd := int(os.Stdin.Fd())
-    oldState, err := terminal.MakeRaw(fd)
-    if err != nil {
-        panic(err)
-    }
-    defer terminal.Restore(fd, oldState)
+	oldState, err := terminal.MakeRaw(fd)
+	if err != nil {
+		panic(err)
+	}
+	defer terminal.Restore(fd, oldState)
 	term := terminal.NewTerminal(&shell{r: os.Stdin, w: os.Stdout}, "> ")
 	if term == nil {
 		panic(errors.New("could not create terminal"))
@@ -92,16 +94,16 @@ func main() {
 		}
 		code, err := w.Compile(fset, line)
 		if err != nil {
-			term.Write([]byte(err.Error()+"\n"))
+			term.Write([]byte(err.Error() + "\n"))
 			continue
 		}
 		v, err := code.Run()
 		if err != nil {
-			term.Write([]byte(err.Error()+"\n"))
+			term.Write([]byte(err.Error() + "\n"))
 			continue
 		}
 		if v != nil {
-			term.Write([]byte(v.String()+"\n"))
+			term.Write([]byte(v.String() + "\n"))
 		}
 	}
 }
