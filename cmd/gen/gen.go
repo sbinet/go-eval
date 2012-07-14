@@ -8,8 +8,8 @@ package main
 
 import (
 	"log"
-	"os"
 	"old/template"
+	"os"
 )
 
 type Op struct {

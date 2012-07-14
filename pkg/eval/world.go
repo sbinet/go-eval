@@ -8,9 +8,9 @@
 package eval
 
 import (
-	"github.com/sbinet/go-types/pkg/types"
 	"errors"
 	"fmt"
+	"github.com/sbinet/go-types/pkg/types"
 	"go/ast"
 	"go/parser"
 	"go/scanner"

@@ -16,8 +16,8 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/sbinet/go-terminal/pkg/terminal"
 	"github.com/sbinet/go-eval/pkg/eval"
+	"github.com/sbinet/go-terminal/pkg/terminal"
 )
 
 var fset = token.NewFileSet()
