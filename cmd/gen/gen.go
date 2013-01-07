@@ -8,8 +8,8 @@ package main
 
 import (
 	"log"
-	"old/template"
 	"os"
+	"text/template"
 )
 
 type Op struct {
@@ -157,32 +157,32 @@ import (
  * "As" functions.  These retrieve evaluator functions from an
  * expr, panicking if the requested evaluator has the wrong type.
  */
-«.repeated section Types»
-«.section IsIdeal»
-func (a *expr) «As»() (func() «Native») {
-	return a.eval.(func()(«Native»))
+«range .Types»
+«if .IsIdeal»
+func (a *expr) «.As»() (func() «.Native») {
+	return a.eval.(func()(«.Native»))
 }
-«.or»
-func (a *expr) «As»() (func(*Thread) «Native») {
-	return a.eval.(func(*Thread)(«Native»))
+«else»
+func (a *expr) «.As»() (func(*Thread) «.Native») {
+	return a.eval.(func(*Thread)(«.Native»))
 }
-«.end»
-«.end»
+«end»
+«end»
 func (a *expr) asMulti() (func(*Thread) []Value) {
 	return a.eval.(func(*Thread)[]Value)
 }
 
 func (a *expr) asInterface() (func(*Thread) interface{}) {
 	switch sf := a.eval.(type) {
-«.repeated section Types»
-«.section IsIdeal»
-	case func()«Native»:
+«range .Types»
+«if .IsIdeal»
+	case func()«.Native»:
 		return func(*Thread) interface{} { return sf() }
-«.or»
-	case func(t *Thread)«Native»:
+«else»
+	case func(t *Thread)«.Native»:
 		return func(t *Thread) interface{} { return sf(t) }
-«.end»
-«.end»
+«end»
+«end»
 	default:
 		log.Panicf("unexpected expression node type %T at %v", a.eval, a.pos)
 	}
@@ -195,15 +195,15 @@ func (a *expr) asInterface() (func(*Thread) interface{}) {
 
 func (a *expr) genConstant(v Value) {
 	switch a.t.lit().(type) {
-«.repeated section Types»
-	case «Repr»:
-«.section IsIdeal»
-		val := v.(«Value»).Get()
-		a.eval = func() «Native» { return val }
-«.or»
-		a.eval = func(t *Thread) «Native» { return v.(«Value»).Get(t) }
-«.end»
-«.end»
+«range .Types»
+	case «.Repr»:
+«if .IsIdeal»
+		val := v.(«.Value»).Get()
+		a.eval = func() «.Native» { return val }
+«else»
+		a.eval = func(t *Thread) «.Native» { return v.(«.Value»).Get(t) }
+«end»
+«end»
 	default:
 		log.Panicf("unexpected constant type %v at %v", a.t, a.pos)
 	}
@@ -212,13 +212,13 @@ func (a *expr) genConstant(v Value) {
 func (a *expr) genIdentOp(level, index int) {
 	a.evalAddr = func(t *Thread) Value { return t.f.Get(level, index) }
 	switch a.t.lit().(type) {
-«.repeated section Types»
-«.section IsIdeal»
-«.or»
-	case «Repr»:
-		a.eval = func(t *Thread) «Native» { return t.f.Get(level, index).(«Value»).Get(t) }
-«.end»
-«.end»
+«range .Types»
+«if .IsIdeal»
+«else»
+	case «.Repr»:
+		a.eval = func(t *Thread) «.Native» { return t.f.Get(level, index).(«.Value»).Get(t) }
+«end»
+«end»
 	default:
 		log.Panicf("unexpected identifier type %v at %v", a.t, a.pos)
 	}
@@ -227,13 +227,13 @@ func (a *expr) genIdentOp(level, index int) {
 func (a *expr) genFuncCall(call func(t *Thread) []Value) {
 	a.exec = func(t *Thread) { call(t)}
 	switch a.t.lit().(type) {
-«.repeated section Types»
-«.section IsIdeal»
-«.or»
-	case «Repr»:
-		a.eval = func(t *Thread) «Native» { return call(t)[0].(«Value»).Get(t) }
-«.end»
-«.end»
+«range .Types»
+«if .IsIdeal»
+«else»
+	case «.Repr»:
+		a.eval = func(t *Thread) «.Native» { return call(t)[0].(«.Value»).Get(t) }
+«end»
+«end»
 	case *MultiType:
 		a.eval = func(t *Thread) []Value { return call(t) }
 	default:
@@ -244,38 +244,38 @@ func (a *expr) genFuncCall(call func(t *Thread) []Value) {
 func (a *expr) genValue(vf func(*Thread) Value) {
 	a.evalAddr = vf
 	switch a.t.lit().(type) {
-«.repeated section Types»
-«.section IsIdeal»
-«.or»
-	case «Repr»:
-		a.eval = func(t *Thread) «Native» { return vf(t).(«Value»).Get(t) }
-«.end»
-«.end»
+«range .Types»
+«if .IsIdeal»
+«else»
+	case «.Repr»:
+		a.eval = func(t *Thread) «.Native» { return vf(t).(«.Value»).Get(t) }
+«end»
+«end»
 	default:
 		log.Panicf("unexpected result type %v at %v", a.t, a.pos)
 	}
 }
 
-«.repeated section UnaryOps»
-func (a *expr) genUnaryOp«Name»(v *expr) {
+«range $op := .UnaryOps»
+func (a *expr) genUnaryOp«.Name»(v *expr) {
 	switch a.t.lit().(type) {
-«.repeated section Types»
-	case «Repr»:
-«.section IsIdeal»
-		val := v.«As»()()
-		«ConstExpr»
-		a.eval = func() «Native» { return val }
-«.or»
-		vf := v.«As»()
-		a.eval = func(t *Thread) «Native» { v := vf(t); return «Expr» }
-«.end»
-«.end»
+«range .Types»
+	case «.Repr»:
+«if .IsIdeal»
+		val := v.«.As»()()
+		«$op.ConstExpr»
+		a.eval = func() «.Native» { return val }
+«else»
+		vf := v.«.As»()
+		a.eval = func(t *Thread) «.Native» { v := vf(t); return «$op.Expr» }
+«end»
+«end»
 	default:
 		log.Panicf("unexpected type %v at %v", a.t, a.pos)
 	}
 }
 
-«.end»
+«end»
 func (a *expr) genBinOpLogAnd(l, r *expr) {
 	lf := l.asBool()
 	rf := r.asBool()
@@ -288,72 +288,72 @@ func (a *expr) genBinOpLogOr(l, r *expr) {
 	a.eval = func(t *Thread) bool { return lf(t) || rf(t) }
 }
 
-«.repeated section BinaryOps»
-func (a *expr) genBinOp«Name»(l, r *expr) {
+«range $op := .BinaryOps»
+func (a *expr) genBinOp«$op.Name»(l, r *expr) {
 	switch t := l.t.lit().(type) {
-«.repeated section Types»
-	case «Repr»:
-	«.section IsIdeal»
-		l := l.«As»()()
-		r := r.«As»()()
-		val := «ConstExpr»
-		«.section ReturnType»
-		a.eval = func(t *Thread) «ReturnType» { return val }
-		«.or»
-		a.eval = func() «Native» { return val }
-		«.end»
-	«.or»
-		lf := l.«As»()
-		rf := r.«.section AsRightName»«@»«.or»«As»«.end»()
-		«.section ReturnType»
-		a.eval = func(t *Thread) «@» {
+«range $type := .Types»
+	case «$type.Repr»:
+	«if $type.IsIdeal»
+		l := l.«$type.As»()()
+		r := r.«$type.As»()()
+		val := «$op.ConstExpr»
+		«if $op.ReturnType»
+		a.eval = func(t *Thread) «$op.ReturnType» { return val }
+		«else»
+		a.eval = func() «$type.Native» { return val }
+		«end»
+	«else»
+		lf := l.«$type.As»()
+		rf := r.«if $op.AsRightName»«$op.AsRightName»«else»«$type.As»«end»()
+		«if $op.ReturnType»
+		a.eval = func(t *Thread) «$op.ReturnType» {
 			l, r := lf(t), rf(t)
-			return «Expr»
+			return «$op.Expr»
 		}
-		«.or»
-		«.section Sizes»
+		«else»
+		«if .Sizes»
 		switch t.Bits {
-		«.repeated section @»
-		case «Bits»:
-			a.eval = func(t *Thread) «Native» {
+		«range .Sizes»
+		case «.Bits»:
+			a.eval = func(t *Thread) «$type.Native» {
 				l, r := lf(t), rf(t)
-				var ret «Native»
-				«.section Body»
-				«Body»
-				«.or»
-				ret = «Expr»
-				«.end»
-				return «Native»(«Sized»(ret))
+				var ret «$type.Native»
+				«if $op.Body»
+				«$op.Body»
+				«else»
+				ret = «$op.Expr»
+				«end»
+				return «$type.Native»(«.Sized»(ret))
 			}
-		«.end»
+		«end»
 		default:
 			log.Panicf("unexpected size %d in type %v at %v", t.Bits, t, a.pos)
 		}
-		«.or»
-		a.eval = func(t *Thread) «Native» {
+		«else»
+		a.eval = func(t *Thread) «$type.Native» {
 			l, r := lf(t), rf(t)
-			return «Expr»
+			return «$op.Expr»
 		}
-		«.end»
-		«.end»
-	«.end»
-	«.end»
+		«end»
+		«end»
+	«end»
+	«end»
 	default:
 		log.Panicf("unexpected type %v at %v", l.t, a.pos)
 	}
 }
 
-«.end»
+«end»
 func genAssign(lt Type, r *expr) (func(lv Value, t *Thread)) {
 	switch lt.lit().(type) {
-«.repeated section Types»
-«.section IsIdeal»
-«.or»
-	case «Repr»:
-		rf := r.«As»()
-		return func(lv Value, t *Thread) { «.section HasAssign»lv.Assign(t, rf(t))«.or»lv.(«Value»).Set(t, rf(t))«.end» }
-«.end»
-«.end»
+«range .Types»
+«if .IsIdeal»
+«else»
+	case «.Repr»:
+		rf := r.«.As»()
+		return func(lv Value, t *Thread) { «if .HasAssign»lv.Assign(t, rf(t))«else»lv.(«.Value»).Set(t, rf(t))«end» }
+«end»
+«end»
 	default:
 		log.Panicf("unexpected left operand type %v at %v", lt, r.pos)
 	}
@@ -362,9 +362,9 @@ func genAssign(lt Type, r *expr) (func(lv Value, t *Thread)) {
 `
 
 func main() {
-	t := template.New(nil)
-	t.SetDelims("«", "»")
-	err := t.Parse(templateStr)
+	t := template.New("")
+	t.Delims("«", "»")
+	t, err := t.Parse(templateStr)
 	if err != nil {
 		log.Fatal(err)
 	}
