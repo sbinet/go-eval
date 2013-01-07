@@ -1,4 +1,5 @@
 #!/bin/bash
-go build . || exit 1
+set -e
+go build gen.go
 ./gen > expr1.go
 gofmt -w expr1.go
