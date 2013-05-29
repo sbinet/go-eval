@@ -5,7 +5,6 @@
 package eval
 
 import (
-	"github.com/sbinet/go-types/pkg/types"
 	"go/ast"
 	"go/build"
 	"go/parser"
@@ -14,6 +13,8 @@ import (
 	"math/big"
 	"path/filepath"
 	"strconv"
+
+	"code.google.com/p/go.tools/go/types"
 )
 
 const (

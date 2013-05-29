@@ -10,13 +10,14 @@ package eval
 import (
 	"errors"
 	"fmt"
-	"github.com/sbinet/go-types/pkg/types"
 	"go/ast"
 	"go/parser"
 	"go/scanner"
 	"go/token"
 	"regexp"
 	"strconv"
+
+	"code.google.com/p/go.tools/go/types"
 )
 
 // track the status of each package we visit (unvisited/visiting/done)
