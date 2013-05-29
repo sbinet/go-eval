@@ -387,7 +387,7 @@ func (a *stmtCompiler) compileImportDecl(decl *ast.GenDecl) {
 		}
 		//FIXME: this 'imports' object should be a member of stmtCompiler
 		//       (or even to 'compiler' ?)
-		imports := make(map[string]*ast.Object)
+		imports := make(map[string]*types.Package)
 		pkg, err := srcImporter(imports, path)
 		if err != nil {
 			a.diagAt(spec.Pos(), "could not import package [%s]: %v",
@@ -397,7 +397,7 @@ func (a *stmtCompiler) compileImportDecl(decl *ast.GenDecl) {
 		if spec.Name != nil {
 			a.definePkg(spec.Name, n, path)
 		} else {
-			n = pkg.Name
+			n = pkg.Name()
 			a.definePkg(spec.Path, n, path)
 		}
 	}
@@ -1363,40 +1363,6 @@ func findPkgFiles(path string) ([]*ast.File, error) {
 }
 
 // srcImporter implements the ast.Importer signature.
-func srcImporter(imports map[string]*ast.Object, path string) (pkg *ast.Object, _ error) {
-	if path == "unsafe" {
-		return types.Unsafe, nil
-	}
-
-	if pkg = imports[path]; pkg != nil {
-		return nil, nil // package was imported before
-	}
-
-	buildPkg, err := build.Import(path, "", 0)
-	if err != nil {
-		return nil, err
-	}
-	//FIXME: CGoFiles and the 'C' package ?
-
-	fset := token.NewFileSet()
-	var files []*ast.File
-	for i := range buildPkg.GoFiles {
-		pkgfile := filepath.Join(buildPkg.Dir, buildPkg.GoFiles[i])
-		f, err := parser.ParseFile(fset, pkgfile, nil, 0)
-		if err != nil {
-			return nil, err
-		}
-		files = append(files, f)
-	}
-
-	decls := make([]ast.Decl, 0)
-	for _, f := range files {
-		decls = append(decls, f.Decls...)
-	}
-	pkg = ast.NewObj(ast.Pkg, buildPkg.Name)
-	pkg.Decl = decls
-
-	imports[path] = pkg
-
-	return pkg, nil
+func srcImporter(imports map[string]*types.Package, path string) (pkg *types.Package, _ error) {
+	return types.GcImport(imports, path)
 }

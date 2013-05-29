@@ -70,7 +70,8 @@ func (w *World) CompilePackage(fset *token.FileSet, files []*ast.File, pkgpath s
 	for _, f := range files {
 		pkgFiles[f.Name.Name] = f
 	}
-	pkg, err := ast.NewPackage(fset, pkgFiles, srcImporter, types.Universe)
+	//pkg, err := ast.NewPackage(fset, pkgFiles, srcImporter, types.Universe)
+	pkg, err := types.Check(files[0].Name.String(), fset, files...)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +89,7 @@ func (w *World) CompilePackage(fset *token.FileSet, files []*ast.File, pkgpath s
 	g_visiting[pkgpath] = visiting
 	// create a new scope in which to process this new package
 	imports := []*ast.ImportSpec{}
-	for _, f := range pkg.Files {
+	for _, f := range files {
 		imports = append(imports, f.Imports...)
 	}
 
@@ -127,7 +128,7 @@ func (w *World) CompilePackage(fset *token.FileSet, files []*ast.File, pkgpath s
 	}()
 
 	decls := make([]ast.Decl, 0)
-	for _, f := range pkg.Files {
+	for _, f := range files {
 		decls = append(decls, f.Decls...)
 	}
 	code, err := w.CompileDeclList(fset, decls)
