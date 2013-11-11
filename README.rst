@@ -18,4 +18,4 @@ Usage::
 
 Documentation:
 
-  http://gopkgdoc.appspot.com/pkg/github.com/sbinet/go-eval/pkg/eval
+  http://godoc.org/github.com/sbinet/go-eval/pkg/eval
