@@ -15,6 +15,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/sbinet/go-eval/pkg/eval"
 	"github.com/sbinet/go-terminal/pkg/terminal"
@@ -90,6 +91,9 @@ func main() {
 	for {
 		line, err := term.ReadLine()
 		if err != nil {
+			break
+		}
+		if strings.ToLower(strings.TrimSpace(line)) == "exit" {
 			break
 		}
 		code, err := w.Compile(fset, line)
