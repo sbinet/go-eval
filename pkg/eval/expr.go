@@ -210,7 +210,7 @@ func (a *expr) derefArray() *expr {
 	return a
 }
 
-// asValue returns a closure around a Value, according to the 
+// asValue returns a closure around a Value, according to the
 // type of the underlying expression
 func (a *expr) asValue() func(t *Thread) Value {
 	var fct func(t *Thread) Value
