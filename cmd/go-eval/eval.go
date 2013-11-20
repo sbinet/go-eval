@@ -74,7 +74,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	fmt.Println(":: welcome to go-eval...")
+	fmt.Println(":: welcome to go-eval...\n(hit ^D to exit)")
 
 	fd := int(os.Stdin.Fd())
 	oldState, err := terminal.MakeRaw(fd)
