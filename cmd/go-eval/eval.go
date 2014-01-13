@@ -17,7 +17,7 @@ import (
 	"os"
 
 	"code.google.com/p/go.crypto/ssh/terminal"
-	"github.com/sbinet/go-eval/pkg/eval"
+	eval "github.com/sbinet/go-eval"
 )
 
 var fset = token.NewFileSet()
