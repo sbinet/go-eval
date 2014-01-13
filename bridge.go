@@ -128,7 +128,9 @@ func TypeFromNative(t reflect.Type) Type {
 }
 
 // TypeOfNative returns the interpreter Type of a regular Go value.
-func TypeOfNative(v interface{}) Type { return TypeFromNative(reflect.TypeOf(v)) }
+func TypeOfNative(v interface{}) Type {
+	return TypeFromNative(reflect.TypeOf(v))
+}
 
 /*
  * Function bridging
