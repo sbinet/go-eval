@@ -53,7 +53,7 @@ type Type interface {
 	// String returns the string representation of this type.
 	String() string
 	// The position where this type was defined, if any.
-	Pos() token.Pos
+	//Pos() token.Pos
 }
 
 type BoundedType interface {
@@ -138,8 +138,6 @@ func (commonType) isInteger() bool { return false }
 func (commonType) isFloat() bool { return false }
 
 func (commonType) isIdeal() bool { return false }
-
-func (commonType) Pos() token.Pos { return token.NoPos }
 
 /*
  * Package
