@@ -38,8 +38,9 @@ type World struct {
 }
 
 func NewWorld() *World {
-	w := new(World)
-	w.scope = universe.ChildScope()
+	w := &World{
+		scope: universe.ChildScope(),
+	}
 	w.scope.global = true // this block's vars allocate directly
 	return w
 }
