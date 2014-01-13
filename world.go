@@ -282,7 +282,8 @@ func (w *World) Compile(fset *token.FileSet, text string) (Code, error) {
 	}
 	if i := import_regexp.FindStringIndex(text); i != nil && i[0] == 0 {
 		// special case for import-ing on the command line...
-		return w.compileImport(fset, text)
+		//return w.compileImport(fset, text)
+		return nil, fmt.Errorf("sorry. import \"foo\" not (yet?) implemented")
 	}
 
 	stmts, err := parseStmtList(fset, text)
