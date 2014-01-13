@@ -1249,6 +1249,10 @@ func (a *blockCompiler) compileStmt(s ast.Stmt) {
 }
 
 func (a *blockCompiler) compileStmts(block *ast.BlockStmt) {
+	if block == nil || block.List == nil {
+		return
+	}
+
 	for _, sub := range block.List {
 		a.compileStmt(sub)
 	}
