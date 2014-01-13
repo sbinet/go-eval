@@ -403,6 +403,10 @@ func (a *stmtCompiler) compileImportDecl(decl *ast.GenDecl) {
 	}
 }
 
+func (a *stmtCompiler) compileConstDecl(decl *ast.GenDecl) {
+	log.Panicf("%v not implemented", decl.Tok)
+}
+
 func (a *stmtCompiler) compileDecl(decl ast.Decl) {
 	switch d := decl.(type) {
 	case *ast.BadDecl:
@@ -438,11 +442,13 @@ func (a *stmtCompiler) compileDecl(decl ast.Decl) {
 		case token.IMPORT:
 			a.compileImportDecl(d)
 		case token.CONST:
-			log.Panicf("%v not implemented", d.Tok)
+			a.compileConstDecl(d)
 		case token.TYPE:
 			a.compileTypeDecl(a.block, d)
 		case token.VAR:
 			a.compileVarDecl(d)
+		default:
+			log.Panicf("unknown ast.GenDecl token: %v\n", d.Tok)
 		}
 
 	default:
