@@ -1373,6 +1373,6 @@ func findPkgFiles(path string) ([]*ast.File, error) {
 }
 
 // srcImporter implements the ast.Importer signature.
-func srcImporter(imports map[string]*types.Package, path string) (pkg *types.Package, _ error) {
-	return types.GcImport(imports, path)
+func srcImporter(imports map[string]*types.Package, path string) (pkg *types.Package, err error) {
+	return types.DefaultImport(imports, path)
 }

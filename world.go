@@ -17,6 +17,7 @@ import (
 	"regexp"
 	"strconv"
 
+	_ "code.google.com/p/go.tools/go/gcimporter"
 	"code.google.com/p/go.tools/go/types"
 )
 
@@ -71,7 +72,7 @@ func (w *World) CompilePackage(fset *token.FileSet, files []*ast.File, pkgpath s
 		pkgFiles[f.Name.Name] = f
 	}
 	//pkg, err := ast.NewPackage(fset, pkgFiles, srcImporter, types.Universe)
-	pkg, err := types.Check(files[0].Name.String(), fset, files...)
+	pkg, err := types.Check(files[0].Name.String(), fset, files)
 	if err != nil {
 		return nil, err
 	}
