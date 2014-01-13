@@ -92,7 +92,7 @@ func TypeFromNative(t reflect.Type) Type {
 	case reflect.Interface:
 		log.Panicf("%T not implemented", t)
 	case reflect.Map:
-		log.Panicf("%T not implemented", t)
+		et = NewMapType(TypeFromNative(t.Key()), TypeFromNative(t.Elem()))
 	case reflect.Ptr:
 		et = NewPtrType(TypeFromNative(t.Elem()))
 	case reflect.Slice:
