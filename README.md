@@ -26,6 +26,14 @@ world
   http://godoc.org/github.com/sbinet/go-eval
 
 
+## Limitations (*aka* TODO)
+
+- channels are not implemented
+- imports are not implemented
+- goroutines are not implemented
+- consts are not implemented
+- select is not implemented
+
 ## Interpreter
 
 The ``go-eval`` command is rather barebone.
