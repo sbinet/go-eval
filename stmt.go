@@ -566,6 +566,13 @@ func (a *stmtCompiler) doAssign(lhs []ast.Expr, rhs []ast.Expr, tok token.Token,
 		rs[i] = a.compileExpr(a.block, false, re)
 	}
 
+	// Check if compileExpr failed on any expr
+	for _, r := range rs {
+		if r == nil {
+			return
+		}
+	}
+
 	errOp := "assignment"
 	if tok == token.DEFINE || tok == token.VAR {
 		errOp = "declaration"
