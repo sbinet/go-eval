@@ -164,6 +164,10 @@ func (b *block) defineSlot(t Type, temp bool) *Variable {
 	return v
 }
 
+func (b *block) UndefineConst(name string) () {
+    delete(b.defs, name)
+}
+
 func (b *block) DefineConst(name string, pos token.Pos, t Type, v Value) (*Constant, Def) {
 	if prev, ok := b.defs[name]; ok {
 		return nil, prev
