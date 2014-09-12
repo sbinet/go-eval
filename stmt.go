@@ -449,8 +449,8 @@ func (a *stmtCompiler) compileDecl(decl ast.Decl) {
 			a.compileConstDecl(d)
 		case token.TYPE:
 			name := d.Specs[0].(*ast.TypeSpec).Name.Name
-			_, _, dup := a.block.Lookup(name)
-			if dup != nil {
+			_, level, dup := a.block.Lookup(name)
+			if dup != nil && level == 0 {
 				a.diag(
 					"%s redeclared in this block\n\tprevious declaration at %s",
 					name,
