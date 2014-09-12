@@ -340,7 +340,7 @@ var stmtTests = []test{
 	Run2("func f1(){}", "f1()"),
 
 	// Imports
-	CErr(`import "__a"`, "could not find files.*__a"),
+	CErr(`import "__a"`, `import "foo" not .*? implemented`),
 }
 
 func TestStmt(t *testing.T) { runTests(t, "stmtTests", stmtTests) }
