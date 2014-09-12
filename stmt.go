@@ -448,7 +448,20 @@ func (a *stmtCompiler) compileDecl(decl ast.Decl) {
 		case token.CONST:
 			a.compileConstDecl(d)
 		case token.TYPE:
-			a.compileTypeDecl(a.block, d)
+			name := d.Specs[0].(*ast.TypeSpec).Name.Name
+			_, _, dup := a.block.Lookup(name)
+			if dup != nil {
+				a.diag(
+					"%s redeclared in this block\n\tprevious declaration at %s",
+					name,
+					a.fset.Position(dup.Pos()),
+				)
+				return
+			}
+			ok := a.compileTypeDecl(a.block, d)
+			if !ok {
+				a.block.undefine(name)
+			}
 		case token.VAR:
 			a.compileVarDecl(d)
 		default:
