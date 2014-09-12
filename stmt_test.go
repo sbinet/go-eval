@@ -86,6 +86,9 @@ var stmtTests = []test{
 	CErr("type T i", "variable"),
 	CErr("type T T", "recursive"),
 	CErr("type T x; type U T; var v U; v = 1", "undefined"),
+	CErr("type A int; type A uint", "A redeclared in this block"),
+	Run("type A int; func F() {type A uint}"),
+
 	// Pointer types
 	Run("type T *int"),
 	Run("type T *T"),
