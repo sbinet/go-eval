@@ -51,7 +51,7 @@ var exprTests = []test{
 	Val("\"\"", ""),
 	Val("\"\\n\\\"\"", "\n\""),
 	CErr("\"\\z\"", unknownEscape),
-	CErr("\"abc", "string not terminated"),
+	CErr("\"abc", "string literal not terminated"),
 
 	Val("(i)", 1),
 
