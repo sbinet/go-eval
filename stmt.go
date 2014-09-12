@@ -362,9 +362,11 @@ func (a *stmtCompiler) compileVarDecl(decl *ast.GenDecl) {
 				log.Panic("Type and Values nil")
 			}
 			t := a.compileType(a.block, spec.Type)
-			// Define placeholders even if type compile failed
-			for _, n := range spec.Names {
-				a.defineVar(n, t)
+			// Define placeholders only if type compile succeeded
+			if t != nil {
+				for _, n := range spec.Names {
+					a.defineVar(n, t)
+				}
 			}
 		} else {
 			// Declaration with assignment
@@ -432,6 +434,8 @@ func (a *stmtCompiler) compileDecl(decl ast.Decl) {
 		}
 		fn := a.compileFunc(a.block, decl, d.Body)
 		if c == nil || fn == nil {
+			//when compile error, remove func identifier from the table
+			a.block.undefine(d.Name.Name)
 			return
 		}
 		var zeroThread Thread
@@ -444,7 +448,20 @@ func (a *stmtCompiler) compileDecl(decl ast.Decl) {
 		case token.CONST:
 			a.compileConstDecl(d)
 		case token.TYPE:
-			a.compileTypeDecl(a.block, d)
+			name := d.Specs[0].(*ast.TypeSpec).Name.Name
+			_, level, dup := a.block.Lookup(name)
+			if dup != nil && level == 0 {
+				a.diag(
+					"%s redeclared in this block\n\tprevious declaration at %s",
+					name,
+					a.fset.Position(dup.Pos()),
+				)
+				return
+			}
+			ok := a.compileTypeDecl(a.block, d)
+			if !ok {
+				a.block.undefine(name)
+			}
 		case token.VAR:
 			a.compileVarDecl(d)
 		default:

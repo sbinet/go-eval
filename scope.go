@@ -136,6 +136,10 @@ func (b *block) ChildScope() *Scope {
 	return sub.scope
 }
 
+func (b *block) undefine(name string) {
+	delete(b.defs, name)
+}
+
 func (b *block) DefineVar(name string, pos token.Pos, t Type) (*Variable, Def) {
 	if prev, ok := b.defs[name]; ok {
 		return nil, prev
