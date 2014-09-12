@@ -434,6 +434,8 @@ func (a *stmtCompiler) compileDecl(decl ast.Decl) {
 		}
 		fn := a.compileFunc(a.block, decl, d.Body)
 		if c == nil || fn == nil {
+			//when compile error, remove func identifier from the table
+			a.block.undefine(d.Name.Name)
 			return
 		}
 		var zeroThread Thread
