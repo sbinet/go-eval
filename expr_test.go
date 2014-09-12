@@ -11,7 +11,7 @@ import (
 
 var undefined = "undefined"
 var typeAsExpr = "type .* used as expression"
-var badCharLit = "character literal"
+var badRuneLit = "rune literal"
 var unknownEscape = "unknown escape sequence"
 var opTypes = "illegal (operand|argument) type|cannot index into"
 var badAddrOf = "cannot take the address"
@@ -33,12 +33,12 @@ var exprTests = []test{
 	Val("'a'", big.NewInt('a')),
 	Val("'\\uffff'", big.NewInt('\uffff')),
 	Val("'\\n'", big.NewInt('\n')),
-	CErr("''+x", badCharLit),
+	CErr("''+x", badRuneLit),
 	// Produces two parse errors
 	//CErr("'''", ""),
-	CErr("'\n'", badCharLit),
+	CErr("'\n'", badRuneLit),
 	CErr("'\\z'", unknownEscape),
-	CErr("'ab'", badCharLit),
+	CErr("'ab'", badRuneLit),
 
 	Val("1.0", big.NewRat(1, 1)),
 	//Val("1.", big.NewRat(1, 1)), //FIXME
