@@ -362,9 +362,11 @@ func (a *stmtCompiler) compileVarDecl(decl *ast.GenDecl) {
 				log.Panic("Type and Values nil")
 			}
 			t := a.compileType(a.block, spec.Type)
-			// Define placeholders even if type compile failed
-			for _, n := range spec.Names {
-				a.defineVar(n, t)
+			// Define placeholders only if type compile succeeded
+			if t != nil {
+				for _, n := range spec.Names {
+					a.defineVar(n, t)
+				}
 			}
 		} else {
 			// Declaration with assignment
