@@ -97,6 +97,10 @@ func main() {
 			term.Write([]byte(err.Error() + "\n"))
 			continue
 		}
+		if code == nil {
+			term.Write([]byte("failed to compile codelet\n"))
+			continue
+		}
 		v, err := code.Run()
 		if err != nil {
 			term.Write([]byte(err.Error() + "\n"))
