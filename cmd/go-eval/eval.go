@@ -16,7 +16,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"code.google.com/p/go.crypto/ssh/terminal"
+	"golang.org/x/crypto/ssh/terminal"
 	eval "github.com/sbinet/go-eval"
 )
 
