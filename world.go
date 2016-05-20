@@ -5,24 +5,31 @@
 // Package eval is the beginning of an interpreter for Go.
 // It can run simple Go programs but does not implement
 // interface values or packages.
+
+// go/importer is only available in go1.6 and later
+// +build go1.6
+
 package eval
 
 import (
 	"errors"
 	"fmt"
 	"go/ast"
+        "go/importer"
 	"go/parser"
 	"go/scanner"
 	"go/token"
+        "go/types"
 	"regexp"
 	"strconv"
-
-	_ "golang.org/x/tools/go/gcimporter"
-	"golang.org/x/tools/go/types"
 )
 
 // track the status of each package we visit (unvisited/visiting/done)
 var g_visiting = make(map[string]status)
+
+// config used for type checking
+var g_typesConfig = types.Config{Importer: importer.Default()}
+
 
 type status int // status for visiting map
 const (
@@ -72,8 +79,9 @@ func (w *World) CompilePackage(fset *token.FileSet, files []*ast.File, pkgpath s
 	for _, f := range files {
 		pkgFiles[f.Name.Name] = f
 	}
+
 	//pkg, err := ast.NewPackage(fset, pkgFiles, srcImporter, types.Universe)
-	pkg, err := types.Check(files[0].Name.String(), fset, files)
+	pkg, err := g_typesConfig.Check(files[0].Name.String(), fset, files, nil)
 	if err != nil {
 		return nil, err
 	}

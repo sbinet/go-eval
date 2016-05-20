@@ -2,25 +2,32 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// go/importer is only available in go1.6 and later
+// +build go1.6
+
 package eval
 
 import (
 	"go/ast"
 	"go/build"
+        "go/importer"
 	"go/parser"
 	"go/token"
+        "go/types"
 	"log"
 	"math/big"
 	"path/filepath"
 	"strconv"
-
-	"golang.org/x/tools/go/types"
 )
 
 const (
 	returnPC = ^uint(0)
 	badPC    = ^uint(1)
 )
+
+// default importer of packages
+var g_importer types.Importer = importer.Default()
+
 
 /*
  * Statement compiler
@@ -387,10 +394,8 @@ func (a *stmtCompiler) compileImportDecl(decl *ast.GenDecl) {
 		if spec.Name != nil {
 			n = spec.Name.Name
 		}
-		//FIXME: this 'imports' object should be a member of stmtCompiler
-		//       (or even to 'compiler' ?)
-		imports := make(map[string]*types.Package)
-		pkg, err := srcImporter(imports, path)
+
+		pkg, err := srcImporter(g_importer, path)
 		if err != nil {
 			a.diagAt(spec.Pos(), "could not import package [%s]: %v",
 				path, err)
@@ -1397,6 +1402,6 @@ func findPkgFiles(path string) ([]*ast.File, error) {
 }
 
 // srcImporter implements the ast.Importer signature.
-func srcImporter(imports map[string]*types.Package, path string) (pkg *types.Package, err error) {
-	return types.DefaultImport(imports, path)
+func srcImporter(typesImporter types.Importer, path string) (pkg *types.Package, err error) {
+	return typesImporter.Import(path)
 }
