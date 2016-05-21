@@ -227,21 +227,19 @@ var stmtTests = []test{
 	Val2("if x := true; x { i = 2 } else { i = 3 }; i2 = 4", "i", 2, "i2", 4),
 	Val2("if x := false; x { i = 2 } else { i = 3 }; i2 = 4", "i", 3, "i2", 4),
 	// Statement else
-	Val2("if true { i = 2 } else i = 3; i2 = 4", "i", 2, "i2", 4),
-	Val2("if false { i = 2 } else i = 3; i2 = 4", "i", 3, "i2", 4),
+	Val2("if true { i = 2 } else { i = 3 }; i2 = 4", "i", 2, "i2", 4),
+	Val2("if false { i = 2 } else { i = 3 }; i2 = 4", "i", 3, "i2", 4),
 	// Scoping
 	Val2("if true { i := 2 } else { i := 3 }; i2 = i", "i", 1, "i2", 1),
 	Val2("if false { i := 2 } else { i := 3 }; i2 = i", "i", 1, "i2", 1),
-	Val2("if false { i := 2 } else i := 3; i2 = i", "i", 1, "i2", 1),
+	Val2("if false { i := 2 } else { i := 3 }; i2 = i", "i", 1, "i2", 1),
 	CErr("if true { x := 2 }; x = 4", undefined),
 	Val2("if i := 2; true { i2 = i; i := 3 }", "i", 1, "i2", 2),
 	Val2("if i := 2; false {} else { i2 = i; i := 3 }", "i", 1, "i2", 2),
 	// Return checking
 	Run("fn1 := func() int { if true { return 1 } else { return 2 } }"),
-	Run("fn1 := func() int { if true { return 1 } else return 2 }"),
 	CErr("fn1 := func() int { if true { return 1 } else { } }", "return"),
 	CErr("fn1 := func() int { if true { } else { return 1 } }", "return"),
-	CErr("fn1 := func() int { if true { } else return 1 }", "return"),
 	CErr("fn1 := func() int { if true { } else { } }", "return"),
 	CErr("fn1 := func() int { if true { return 1 } }", "return"),
 	CErr("fn1 := func() int { if true { } }", "return"),
@@ -249,7 +247,6 @@ var stmtTests = []test{
 	CErr("fn1 := func() int { if true { } }", "return"),
 	CErr("fn1 := func() int { if true { } else { return 2 } }", "return"),
 	Run("fn1 := func() int { if true { return 1 }; return 0 }"),
-	Run("fn1 := func() int { if true { return 1 } else { }; return 0 }"),
 	Run("fn1 := func() int { if true { return 1 } else { }; return 0 }"),
 
 	// Switch
