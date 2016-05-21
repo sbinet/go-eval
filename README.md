@@ -1,6 +1,8 @@
 go-eval
 =======
 
+[![Build Status](https://secure.travis-ci.org/sbinet/go-eval.png)](http://travis-ci.org/sbinet/go-eval) [![GoDoc](https://godoc.org/github.com/sbinet/go-eval?status.svg)](https://godoc.org/github.com/sbinet/go-eval)
+
 This is the new home for the ``exp/eval`` package: the beginning of an interpreter for Go.
 
 ## Installation
