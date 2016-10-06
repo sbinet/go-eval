@@ -15,6 +15,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	eval "github.com/sbinet/go-eval"
 	"golang.org/x/crypto/ssh/terminal"
@@ -90,6 +91,9 @@ func main() {
 	for {
 		line, err := term.ReadLine()
 		if err != nil {
+			break
+		}
+		if strings.ToLower(strings.TrimSpace(line)) == "exit" {
 			break
 		}
 		code, err := w.Compile(fset, line)
